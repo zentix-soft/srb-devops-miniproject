@@ -1,5 +1,26 @@
 # Soraban: Heroku to AWS Migration Plan
 
+## 📚 Table of Contents
+
+- [📌 Overview](#-overview)
+- [🎯 Objectives](#-objectives)
+- [⚙️ Architecture Overview](#️-architecture-overview)
+- [🧱 Infrastructure Components & Justification](#-infrastructure-components--justification)
+  - [✅ AWS EKS on Fargate](#-aws-eks-on-fargate)
+  - [✅ Aurora PostgreSQL (Regional, Fargate)](#-aurora-postgresql-regional-fargate)
+  - [✅ HashiCorp Vault on EC2](#-hashicorp-vault-on-ec2)
+  - [✅ Prometheus + Fluentd + Logz.io](#-prometheus--fluentd--logzio)
+  - [✅ S3](#-s3)
+  - [✅ GitHub Actions](#-github-actions)
+  - [✅ Redis (for Sidekiq)](#-redis-for-sidekiq)
+  - [🧠 Aerospike (Optional - Future Use)](#-aerospike-optional---future-use)
+- [🛡️ Security & SOC 2 Alignment](#️-security--soc-2-alignment)
+- [💸 Cost Estimate (Rough, per month)](#-cost-estimate-rough-per-month)
+- [📈 Scalability Plan](#-scalability-plan)
+- [🚧 Future Enhancements](#-future-enhancements)
+- [🧪 Migration Approach](#-migration-approach)
+- [✅ Summary](#-Summary)
+
 ## 📌 Overview
 
 This document outlines a proposed migration of Soraban's Ruby on Rails backend from Heroku to AWS. The goal is to improve availability, performance, scalability, and cost-efficiency while preparing the platform for future growth and SOC 2 compliance.
