@@ -1,0 +1,65 @@
+---
+config:
+  layout: elk
+---
+flowchart TD
+  subgraph Public_Network["Public_Network"]
+    gh["GitHub Actions"]
+    vercel["Vercel - React Frontend"]
+    logzio["Logz.io (Logs, Grafana, Alerts)"]
+  end
+
+  subgraph aurora_cluster["Aurora PostgreSQL Regional Cluster"]
+    aurora_writer["Writer Instance - Multi AZ"]
+    aurora_reader1["Read Replica - AZ1"]
+    aurora_reader2["Read Replica - AZ2"]
+  end
+
+  subgraph Observability["Observability Stack in EKS"]
+    prometheus["Self-hosted Prometheus"]
+    fluentd["Fluentd (Logs Collector)"]
+    exporter_web["Exporter - Rails App Metrics"]
+    exporter_sidekiq["Exporter - Sidekiq Metrics"]
+  end
+
+  subgraph EKS_Internal["EKS Internals"]
+    ingress["Ingress (ALB Ingress Controller)"]
+    rails["Deployment: Rails App"]
+    sidekiq["Deployment: Sidekiq Worker"]
+    configmap["ConfigMap (Rails Env Settings)"]
+    secret["Secret (Database URL, Vault Token)"]
+    hpa["HorizontalPodAutoscaler"]
+    service["Service (Rails Only)"]
+  end
+
+  subgraph AWS_VPC["AWS_VPC"]
+    alb["Application Load Balancer"]
+    eks["EKS Cluster"]
+    fargate["Fargate Profiles - Web and Sidekiq"]
+    vault["HashiCorp Vault on EC2"]
+    redis["Redis - ElastiCache"]
+    aurora_cluster
+    s3["S3 Bucket"]
+    Observability
+    EKS_Internal
+  end
+
+  gh --> eks
+  vercel --> alb
+  alb --> ingress
+  ingress --> service
+  service --> rails
+  eks --> fargate
+  fargate --> rails & sidekiq
+  rails --> configmap & secret & hpa
+  sidekiq --> configmap & secret & hpa
+  rails --> aurora_writer & s3 & vault
+  sidekiq --> aurora_writer & s3 & vault & redis
+
+  rails --> exporter_web --> prometheus
+  sidekiq --> exporter_sidekiq --> prometheus
+  rails --> fluentd
+  sidekiq --> fluentd
+  fluentd --> logzio
+  prometheus -->|Remote Write| logzio
+  logzio --> prometheus
