@@ -1,3 +1,8 @@
-# fluentbit-values.yaml
-
-TODO: Implement this file.
+output:
+  logzio:
+    enable: true
+    endpoint: listener.logz.io
+    port: 8071
+    token: "<LOGZIO_TOKEN>"
+    logType: soraban-logs
+    format: json_lines

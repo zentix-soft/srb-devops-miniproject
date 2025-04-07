@@ -1,3 +1,10 @@
-# docker-entrypoint.sh
+#!/bin/sh
+set -e
 
-TODO: Implement this file.
+# Clean up stale PID file
+if [ -f tmp/pids/server.pid ]; then
+  rm tmp/pids/server.pid
+fi
+
+# Ensure Bundler is used to run all commands
+exec bundle exec "$@"

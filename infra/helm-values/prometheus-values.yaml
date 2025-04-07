@@ -1,3 +1,25 @@
-# prometheus-values.yaml
-
-TODO: Implement this file.
+prometheus:
+  prometheusSpec:
+    remoteWrite:
+      - url: https://listener.logz.io:8053
+        basicAuth:
+          username:
+            value: "<LOGZIO_TOKEN>"
+        writeRelabelConfigs: []
+  additionalScrapeConfigs:
+  - job_name: 'sidekiq'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        action: keep
+        regex: sidekiq
+      - source_labels: [__meta_kubernetes_pod_container_port_name]
+        action: keep
+        regex: metrics
+    metrics_path: /metrics
+    scheme: http
+    port: 9394
+grafana:
+  enabled: false # Using Logz.io for dashboards
+  

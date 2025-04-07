@@ -1,3 +1,73 @@
-# rails-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rails
+  namespace: web
+  labels:
+    app: rails
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rails
+  template:
+    metadata:
+      labels:
+        app: rails
+    spec:
+      containers:
+        - name: rails
+          image: ghcr.io/your-org/your-app:latest
+          command: [ "./entrypoints/docker-entrypoint.sh" ]
+          args: [ "rails", "s", "-b", "0.0.0.0", "-e", "production" ]
+          env:
+            - name: RAILS_ENV
+              value: production
 
-TODO: Implement this file.
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rails-secrets
+                  key: database_url
+
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: rails-secrets
+                  key: redis_url
+
+            - name: VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: rails-secrets
+                  key: vault_token
+
+            - name: RAILS_LOG_TO_STDOUT
+              value: "true"
+
+          ports:
+            - containerPort: 3000
+              name: http
+            - containerPort: 9394
+              name: metrics # optional, if using Prometheus
+
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rails-secrets
+  namespace: web
+type: Opaque
+stringData:
+  database_url: postgres://...
+  redis_url: redis://redis-master.redis.svc.cluster.local:6379
+  vault_token: <VAULT-TOKEN>

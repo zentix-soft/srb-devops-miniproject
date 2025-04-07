@@ -1,3 +1,31 @@
-# redis-values.yaml
+architecture: standalone
 
-TODO: Implement this file.
+auth:
+  enabled: true
+  password: "changeme"  # Replace with a secret in production
+
+master:
+  persistence:
+    enabled: true
+    size: 1Gi
+
+service:
+  type: ClusterIP
+  port: 6379
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 30s
+    selector:
+      release: prometheus
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi

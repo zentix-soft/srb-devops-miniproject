@@ -1,3 +1,13 @@
-# vault-values.yaml
-
-TODO: Implement this file.
+server:
+  ha:
+    enabled: false
+  dataStorage:
+    enabled: true
+    size: 10Gi
+  ingress:
+    enabled: true
+    annotations: {}
+    hosts:
+      - host: vault.soraban.internal
+        paths:
+          - "/"

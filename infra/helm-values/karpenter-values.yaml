@@ -1,3 +1,5 @@
-# karpenter-values.yaml
-
-TODO: Implement this file.
+settings:
+  aws:
+    clusterName: "soraban-eks"
+    defaultInstanceProfile: "KarpenterNodeInstanceProfile-soraban"
+    interruptionQueue: "karpenter-interruption-queue"
