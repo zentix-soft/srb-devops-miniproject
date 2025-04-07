@@ -1,0 +1,47 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "change-it"
+    # paths:
+    #   - 'k8s/**'
+    #   - '.github/workflows/deploy-to-k8s.yml'
+
+jobs:
+  deploy:
+    name: Trigger K8s Deployment
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: latest
+
+      - name: Set up Kubeconfig from Secret
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > kubeconfig
+          export KUBECONFIG=$PWD/kubeconfig
+
+      - name: Update Rails Deployment Image
+        run: |
+          IMAGE_TAG=${GITHUB_SHA::8}
+          kubectl set image deployment/rails rails=ghcr.io/${{ github.repository }}:$IMAGE_TAG -n web
+
+      - name: Update Sidekiq Deployment Image
+        run: |
+          IMAGE_TAG=${GITHUB_SHA::8}
+          kubectl set image deployment/sidekiq sidekiq=ghcr.io/${{ github.repository }}:$IMAGE_TAG -n sidekiq
+
+      - name: Apply new manifests (if needed)
+        run: |
+          kubectl apply -f k8s/ --recursive
